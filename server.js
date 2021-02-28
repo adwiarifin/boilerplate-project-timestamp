@@ -24,18 +24,30 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-app.get("/api/timestamp/:date", function (req, res) {
-  var dateParams = req.params.date;
-  var isNumeric = /^-?\d+$/.test(dateParams);
-  if (isNumeric) {
-    dateParams = Number.parseInt(dateParams);
-  }
-  var date = new Date(dateParams);
-  res.json({
-    "unix": date.getTime(),
-    "utc": date.toISOString()
+app
+  .get("/api/timestamp", function (req, res) {
+    var date = new Date();
+    res.json({
+      "unix": date.valueOf(),
+      "utc": date.toUTCString()
+    });
   })
-});
+  .get("/api/timestamp/:date", function (req, res) {
+    var dateParams = req.params.date;
+    var isNumeric = /^-?\d+$/.test(dateParams);
+    if (isNumeric) {
+      dateParams = Number.parseInt(dateParams);
+    }
+    var date = new Date(dateParams);
+    if (date.toString() === "Invalid Date") {
+      res.json({ error : "Invalid Date" });
+    } else {
+      res.json({
+        "unix": date.valueOf(),
+        "utc": date.toUTCString()
+      });
+    }
+  });
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function () {
